@@ -142,6 +142,12 @@
     font-size: 0.9em;
   }
 
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #999;
+  }
+
   @media (max-width: 768px) {
     .header h1 {
       font-size: 1.8em;
@@ -170,58 +176,22 @@
 
   <div class="section" id="learning">
     <h2>📚 学习</h2>
-
-    <div class="post-item">
-      <div class="post-meta">2026年6月14日 · 第1天</div>
-      <div class="post-title">
-        <a href="posts/2026-06-14-start-cs336.html">开始CS336：大模型系统学习启动</a>
-      </div>
-      <div class="post-excerpt">
-        今晚正式启动8周面试准备计划。观看了Stanford CS336 Lecture 1，了解了大模型的基本架构和训练流程。同时刷了5道LeetCode简单题，找回算法手感。明天开始CLIP论文精读。
-      </div>
-      <div class="tags">
-        <span class="tag">CS336</span>
-        <span class="tag">LLM基础</span>
-        <span class="tag">LeetCode</span>
-      </div>
-    </div>
-
-    <div class="post-item">
-      <div class="post-meta">示例文章</div>
-      <div class="post-title">如何添加新文章</div>
-      <div class="post-excerpt">
-        在posts文件夹中创建新的HTML文件，格式为：YYYY-MM-DD-标题.html。然后在这个index.html中添加对应的post-item即可。
-      </div>
+    <div id="learning-posts">
+      <div class="empty-state">正在加载文章...</div>
     </div>
   </div>
 
   <div class="section" id="interview">
     <h2>💼 面试记录</h2>
-
-    <div class="post-item">
-      <div class="post-meta">准备中</div>
-      <div class="post-title">等待第一场面试</div>
-      <div class="post-excerpt">
-        目前正在进行技术准备阶段。预计第5周（7月中旬）开始投递简历，届时会记录每一场面试的经历和反思。
-      </div>
+    <div id="interview-posts">
+      <div class="empty-state">正在加载文章...</div>
     </div>
   </div>
 
   <div class="section" id="life">
     <h2>🎵 生活</h2>
-
-    <div class="post-item">
-      <div class="post-meta">2026年6月14日</div>
-      <div class="post-title">
-        <a href="posts/2026-06-14-new-chapter.html">新的开始：离开体制，追求成长</a>
-      </div>
-      <div class="post-excerpt">
-        在科研院所工作10个月后，我决定离开体制去上海做算法工程师。这不是逃避，而是追求更快的成长和更广阔的平台。同时，我的音乐背景（20年钢琴+8年大提琴）让我对AI×音乐方向充满期待。
-      </div>
-      <div class="tags">
-        <span class="tag">职业转型</span>
-        <span class="tag">音乐</span>
-      </div>
+    <div id="life-posts">
+      <div class="empty-state">正在加载文章...</div>
     </div>
   </div>
 </div>
@@ -231,8 +201,82 @@
   <p>联系方式：zhangwanqin@njust.edu.cn</p>
 </div>
 
+<script src="js/articles.js"></script>
 <script>
-// 简单的导航高亮切换
+// 从localStorage加载并渲染文章
+function loadArticles() {
+  const articleManager = new ArticleManager();
+  const allArticles = articleManager.getAll();
+
+  // 只显示已发布的文章
+  const publicArticles = allArticles.filter(a => a.status === 'public');
+
+  // 按分类分组
+  const categories = {
+    '学习': [],
+    '面试记录': [],
+    '生活': []
+  };
+
+  publicArticles.forEach(article => {
+    if (categories[article.category]) {
+      categories[article.category].push(article);
+    }
+  });
+
+  // 渲染各分类
+  renderCategory('learning', categories['学习']);
+  renderCategory('interview', categories['面试记录']);
+  renderCategory('life', categories['生活']);
+}
+
+function renderCategory(categoryId, articles) {
+  const container = document.getElementById(`${categoryId}-posts`);
+
+  if (!articles || articles.length === 0) {
+    container.innerHTML = '<div class="empty-state">暂无文章</div>';
+    return;
+  }
+
+  // 按日期倒序排列
+  articles.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  container.innerHTML = articles.map(article => {
+    const excerpt = getExcerpt(article.markdown || article.html);
+    const tagsHtml = (article.tags || []).map(tag =>
+      `<span class="tag">${tag}</span>`
+    ).join('');
+
+    return `
+      <div class="post-item">
+        <div class="post-meta">${article.date}</div>
+        <div class="post-title">
+          <a href="posts/${article.id}.html">${article.title}</a>
+        </div>
+        <div class="post-excerpt">${excerpt}</div>
+        <div class="tags">${tagsHtml}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function getExcerpt(content) {
+  if (!content) return '';
+
+  // 移除Markdown标记和HTML标签，获取纯文本
+  let text = content
+    .replace(/#+\s/g, '')           // 移除标题标记
+    .replace(/\*\*(.+?)\*\*/g, '$1') // 移除粗体
+    .replace(/\*(.+?)\*/g, '$1')     // 移除斜体
+    .replace(/<[^>]+>/g, '')         // 移除HTML标签
+    .replace(/\n+/g, ' ')            // 替换换行
+    .trim();
+
+  // 截取前150字符
+  return text.length > 150 ? text.substring(0, 150) + '...' : text;
+}
+
+// 导航高亮切换
 document.querySelectorAll('.nav-btn').forEach(btn => {
   btn.addEventListener('click', function(e) {
     if (this.getAttribute('href').startsWith('#')) {
@@ -248,6 +292,9 @@ document.querySelectorAll('.nav-btn').forEach(btn => {
     }
   });
 });
+
+// 页面加载时加载文章
+window.addEventListener('DOMContentLoaded', loadArticles);
 </script>
 
 </body>

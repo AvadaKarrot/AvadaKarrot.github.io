@@ -36,6 +36,21 @@
     opacity: 0.9;
   }
 
+  .back-home {
+    display: inline-block;
+    background: rgba(255,255,255,0.2);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+    text-decoration: none;
+    margin-bottom: 15px;
+    transition: all 0.3s;
+  }
+
+  .back-home:hover {
+    background: rgba(255,255,255,0.3);
+  }
+
   .container {
     max-width: 1200px;
     margin: 0 auto;
@@ -214,6 +229,7 @@
 
 <div class="container">
   <div class="header">
+    <a href="index.html" class="back-home">← 返回主页</a>
     <h1>📝 稿件管理</h1>
     <p>管理你的博客文章草稿和已发布内容 · <a href="guide.html" style="color: white; text-decoration: underline;">使用指南</a></p>
   </div>
