@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>使用指南 - 博客管理系统</title>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", Arial, sans-serif;
+    line-height: 1.8;
+    color: #333;
+    background: #f5f7fa;
+    padding: 20px;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  }
+
+  .header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 30px;
+    border-radius: 12px;
+    margin-bottom: 30px;
+    text-align: center;
+  }
+
+  .header h1 {
+    font-size: 2em;
+    margin-bottom: 10px;
+  }
+
+  .header p {
+    opacity: 0.9;
+  }
+
+  h2 {
+    color: #667eea;
+    margin-top: 30px;
+    margin-bottom: 15px;
+    font-size: 1.5em;
+    border-bottom: 2px solid #e8ecf7;
+    padding-bottom: 10px;
+  }
+
+  h3 {
+    color: #34495e;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    font-size: 1.2em;
+  }
+
+  p {
+    margin-bottom: 15px;
+  }
+
+  ul, ol {
+    margin-bottom: 15px;
+    padding-left: 30px;
+  }
+
+  li {
+    margin-bottom: 8px;
+  }
+
+  .step {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border-left: 4px solid #667eea;
+  }
+
+  .step-title {
+    font-weight: 600;
+    color: #667eea;
+    margin-bottom: 10px;
+    font-size: 1.1em;
+  }
+
+  .feature {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 15px;
+  }
+
+  .feature-icon {
+    background: #667eea;
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    flex-shrink: 0;
+    font-weight: 600;
+  }
+
+  .feature-content {
+    flex: 1;
+  }
+
+  .btn {
+    display: inline-block;
+    padding: 12px 24px;
+    background: #667eea;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    margin-right: 10px;
+    margin-top: 10px;
+    transition: all 0.3s;
+  }
+
+  .btn:hover {
+    background: #5568d3;
+  }
+
+  .btn-secondary {
+    background: #6c757d;
+  }
+
+  .btn-secondary:hover {
+    background: #5a6268;
+  }
+
+  .warning {
+    background: #fff3cd;
+    border-left: 4px solid #ffc107;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+  }
+
+  .tip {
+    background: #d4edda;
+    border-left: 4px solid #28a745;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+  }
+
+  code {
+    background: #f4f4f4;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: "Consolas", "Monaco", monospace;
+    font-size: 0.9em;
+  }
+
+  @media (max-width: 768px) {
+    .container {
+      padding: 20px;
+    }
+
+    .header h1 {
+      font-size: 1.5em;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>博客管理系统使用指南</h1>
+    <p>轻松管理你的博客文章，从编写到发布一站式完成</p>
+  </div>
+
+  <h2>快速开始</h2>
+
+  <div class="step">
+    <div class="step-title">步骤 1: 打开管理页面</div>
+    <p>在浏览器中打开 <code>manage.html</code>，你会看到所有已保存的文章列表。</p>
+  </div>
+
+  <div class="step">
+    <div class="step-title">步骤 2: 创建新文章</div>
+    <p>点击"+ 新建文章"按钮，会自动跳转到编辑器页面。</p>
+  </div>
+
+  <div class="step">
+    <div class="step-title">步骤 3: 编写内容</div>
+    <p>在左侧输入Markdown格式的文章内容，右侧会实时预览HTML效果。同时填写标题、分类、日期、标签等元数据。</p>
+  </div>
+
+  <div class="step">
+    <div class="step-title">步骤 4: 保存文章</div>
+    <p>点击"保存"按钮，文章数据会保存到浏览器的localStorage中。</p>
+  </div>
+
+  <div class="step">
+    <div class="step-title">步骤 5: 导出HTML</div>
+    <p>点击"导出HTML"按钮，系统会自动生成完整的HTML文件并下载。将下载的文件放置到 <code>posts/</code> 或 <code>drafts/</code> 文件夹。</p>
+  </div>
+
+  <div class="step">
+    <div class="step-title">步骤 6: 更新首页并发布</div>
+    <p>手动编辑 <code>index.html</code>，添加新文章的链接。然后使用Git提交到GitHub触发部署。</p>
+  </div>
+
+  <h2>功能详解</h2>
+
+  <h3>1. Markdown编辑器</h3>
+
+  <div class="feature">
+    <div class="feature-icon">✏️</div>
+    <div class="feature-content">
+      <strong>实时预览：</strong>左侧输入Markdown，右侧实时显示HTML效果，延迟200ms（防抖处理）
+    </div>
+  </div>
+
+  <div class="feature">
+    <div class="feature-icon">📤</div>
+    <div class="feature-content">
+      <strong>文件上传：</strong>支持上传 .md / .markdown / .txt 文件，自动读取内容并尝试提取标题
+    </div>
+  </div>
+
+  <div class="feature">
+    <div class="feature-icon">📝</div>
+    <div class="feature-content">
+      <strong>元数据管理：</strong>标题、分类（学习/面试记录/生活）、日期、标签（逗号分隔）
+    </div>
+  </div>
+
+  <div class="feature">
+    <div class="feature-icon">🔒</div>
+    <div class="feature-content">
+      <strong>状态控制：</strong>Private（草稿）/ Public（已发布），方便区分文章状态
+    </div>
+  </div>
+
+  <div class="feature">
+    <div class="feature-icon">💾</div>
+    <div class="feature-content">
+      <strong>自动保护：</strong>有未保存的修改时离开页面会提示确认，防止意外丢失
+    </div>
+  </div>
+
+  <h3>2. 稿件管理</h3>
+
+  <div class="feature">
+    <div class="feature-icon">📋</div>
+    <div class="feature-content">
+      <strong>列表展示：</strong>表格形式展示所有文章，包含标题、分类、状态、日期、标签
+    </div>
+  </div>
+
+  <div class="feature">
+    <div class="feature-icon">🔍</div>
+    <div class="feature-content">
+      <strong>筛选功能：</strong>全部 / 已发布 / 草稿，快速定位需要的文章
+    </div>
+  </div>
+
+  <div class="feature">
+    <div class="feature-icon">⚙️</div>
+    <div class="feature-content">
+      <strong>多种操作：</strong>编辑、预览、发布/撤回、导出HTML、删除（带确认提示）
+    </div>
+  </div>
+
+  <div class="feature">
+    <div class="feature-icon">🔄</div>
+    <div class="feature-content">
+      <strong>数据备份：</strong>导出所有数据为JSON格式，随时恢复
+    </div>
+  </div>
+
+  <h2>支持的Markdown语法</h2>
+
+  <ul>
+    <li><strong>标题：</strong><code># 一级标题</code>、<code>## 二级标题</code>、<code>### 三级标题</code></li>
+    <li><strong>强调：</strong><code>**粗体**</code>、<code>*斜体*</code></li>
+    <li><strong>列表：</strong><code>- 无序列表</code>、<code>1. 有序列表</code></li>
+    <li><strong>链接：</strong><code>[链接文本](URL)</code></li>
+    <li><strong>引用：</strong><code>&gt; 引用文本</code></li>
+    <li><strong>代码：</strong><code>`行内代码`</code>、<code>```代码块```</code></li>
+    <li><strong>图片：</strong><code>![描述](图片URL)</code></li>
+  </ul>
+
+  <h2>重要提示</h2>
+
+  <div class="warning">
+    <strong>⚠️ 数据存储位置</strong><br>
+    所有文章数据存储在浏览器的localStorage中。清除浏览器数据会导致所有文章丢失！请定期使用"导出所有数据"功能备份。
+  </div>
+
+  <div class="tip">
+    <strong>💡 备份建议</strong><br>
+    1. 每周至少备份一次数据（导出JSON文件）<br>
+    2. 将备份文件保存到云盘或Git仓库<br>
+    3. 重要文章及时导出HTML并提交到GitHub
+  </div>
+
+  <div class="warning">
+    <strong>⚠️ 浏览器兼容性</strong><br>
+    推荐使用Chrome、Firefox、Edge等现代浏览器。IE浏览器不支持。
+  </div>
+
+  <h2>常见问题</h2>
+
+  <h3>Q: 如何恢复之前的备份？</h3>
+  <p>A: 在 <code>manage.html</code> 页面点击"导入数据"按钮，选择之前导出的JSON文件即可。注意：导入会覆盖现有数据。</p>
+
+  <h3>Q: 文章保存后在哪里？</h3>
+  <p>A: 文章数据保存在浏览器localStorage中，可以在管理页面查看。要在网站上显示，需要导出HTML文件并更新首页。</p>
+
+  <h3>Q: 如何在网站上发布文章？</h3>
+  <p>A: 完成以下步骤：<br>
+  1. 在编辑器中导出HTML文件<br>
+  2. 将HTML文件放置到 <code>posts/</code> 文件夹<br>
+  3. 编辑 <code>index.html</code> 添加文章链接<br>
+  4. 使用Git提交并推送到GitHub</p>
+
+  <h3>Q: 可以在不同电脑上使用吗？</h3>
+  <p>A: localStorage数据是浏览器本地的，不能跨设备同步。如需在其他电脑使用，请先导出JSON数据，在新电脑上导入。</p>
+
+  <h3>Q: Markdown预览不准确怎么办？</h3>
+  <p>A: 系统使用marked.js库解析Markdown。如果预览与预期不符，请检查Markdown语法是否正确，或在导出后的HTML文件中手动调整。</p>
+
+  <h2>快捷链接</h2>
+
+  <a href="manage.html" class="btn">打开稿件管理</a>
+  <a href="editor.html" class="btn">打开编辑器</a>
+  <a href="index.html" class="btn btn-secondary">返回首页</a>
+
+</div>
+
+</body>
+</html>

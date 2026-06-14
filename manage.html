@@ -215,10 +215,15 @@
 <div class="container">
   <div class="header">
     <h1>📝 稿件管理</h1>
-    <p>管理你的博客文章草稿和已发布内容</p>
+    <p>管理你的博客文章草稿和已发布内容 · <a href="guide.html" style="color: white; text-decoration: underline;">使用指南</a></p>
   </div>
 
-  <a href="#" class="btn-new" onclick="createNewDraft()">+ 新建草稿</a>
+  <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+    <a href="editor.html" class="btn-new">+ 新建文章</a>
+    <button class="btn-new" onclick="exportAllData()" style="background: #28a745;">导出所有数据</button>
+    <button class="btn-new" onclick="importData()" style="background: #ffc107; color: #333;">导入数据</button>
+  </div>
+  <input type="file" id="import-file" accept=".json" style="display: none;">
 
   <div class="tabs">
     <div class="tab active" onclick="showTab('all')">全部</div>
@@ -279,31 +284,10 @@
   </div>
 </div>
 
+<script src="js/articles.js"></script>
 <script>
-// 稿件数据存储在localStorage
-let articles = JSON.parse(localStorage.getItem('blog_articles')) || [
-  {
-    id: '2026-06-14-start-cs336',
-    title: '开始CS336：大模型系统学习启动',
-    category: '学习',
-    status: 'public',
-    date: '2026-06-14',
-    file: 'posts/2026-06-14-start-cs336.html'
-  },
-  {
-    id: '2026-06-14-new-chapter',
-    title: '新的开始：离开体制，追求成长',
-    category: '生活',
-    status: 'public',
-    date: '2026-06-14',
-    file: 'posts/2026-06-14-new-chapter.html'
-  }
-];
-
-// 保存数据
-function saveArticles() {
-  localStorage.setItem('blog_articles', JSON.stringify(articles));
-}
+// 获取所有文章
+let articles = ArticleManager.getAll();
 
 // 渲染表格
 function renderTable() {
@@ -315,20 +299,37 @@ function renderTable() {
   publicTbody.innerHTML = '';
   draftTbody.innerHTML = '';
 
+  // 重新获取最新数据
+  articles = ArticleManager.getAll();
   articles.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  if (articles.length === 0) {
+    const emptyRow = '<tr><td colspan="5" style="text-align: center; padding: 40px; color: #999;">暂无文章，点击"新建文章"开始创作</td></tr>';
+    allTbody.innerHTML = emptyRow;
+    publicTbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 40px; color: #999;">暂无已发布文章</td></tr>';
+    draftTbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 40px; color: #999;">暂无草稿</td></tr>';
+    return;
+  }
 
   articles.forEach(article => {
     const row = createRow(article);
     allTbody.appendChild(row.cloneNode(true));
 
     if (article.status === 'public') {
-      publicTbody.appendChild(row.cloneNode(true));
+      const publicRow = createRow(article, true);
+      publicTbody.appendChild(publicRow);
     } else {
-      draftTbody.appendChild(row.cloneNode(true));
+      const draftRow = createRow(article, true);
+      draftTbody.appendChild(draftRow);
     }
   });
 
   // 绑定事件
+  bindEvents();
+}
+
+// 绑定按钮事件
+function bindEvents() {
   document.querySelectorAll('.btn-edit').forEach(btn => {
     btn.onclick = () => editArticle(btn.dataset.id);
   });
@@ -341,31 +342,66 @@ function renderTable() {
   document.querySelectorAll('.btn-delete').forEach(btn => {
     btn.onclick = () => deleteArticle(btn.dataset.id);
   });
+  document.querySelectorAll('.btn-export').forEach(btn => {
+    btn.onclick = () => exportArticleHTML(btn.dataset.id);
+  });
+  document.querySelectorAll('.btn-preview').forEach(btn => {
+    btn.onclick = () => previewArticle(btn.dataset.id);
+  });
 }
 
 // 创建表格行
-function createRow(article) {
+function createRow(article, hideStatus = false) {
   const row = document.createElement('tr');
 
   const statusBadge = article.status === 'public'
     ? '<span class="status-badge status-public">已发布</span>'
     : '<span class="status-badge status-draft">草稿</span>';
 
-  const publishBtn = article.status === 'draft'
+  const publishBtn = article.status === 'private' || article.status === 'draft'
     ? `<button class="btn btn-publish" data-id="${article.id}">发布</button>`
     : `<button class="btn btn-unpublish" data-id="${article.id}">撤回</button>`;
 
-  row.innerHTML = `
-    <td><strong>${article.title}</strong></td>
-    <td><span class="category">${article.category}</span></td>
-    <td>${statusBadge}</td>
-    <td>${article.date}</td>
-    <td>
-      <button class="btn btn-edit" data-id="${article.id}">编辑</button>
-      ${publishBtn}
-      <button class="btn btn-delete" data-id="${article.id}">删除</button>
-    </td>
-  `;
+  const tags = article.tags && article.tags.length > 0
+    ? `<div style="margin-top: 5px;">${article.tags.map(tag => `<span class="category" style="font-size: 0.75em;">${tag}</span>`).join('')}</div>`
+    : '';
+
+  if (hideStatus) {
+    // 用于已发布/草稿单独列表
+    row.innerHTML = `
+      <td>
+        <strong>${article.title}</strong>
+        ${tags}
+      </td>
+      <td><span class="category">${article.category}</span></td>
+      <td>${article.date}</td>
+      <td>
+        <button class="btn btn-edit" data-id="${article.id}">编辑</button>
+        <button class="btn btn-preview" data-id="${article.id}" style="background: #17a2b8; color: white;">预览</button>
+        ${publishBtn}
+        <button class="btn btn-export" data-id="${article.id}" style="background: #6c757d; color: white;">导出HTML</button>
+        <button class="btn btn-delete" data-id="${article.id}">删除</button>
+      </td>
+    `;
+  } else {
+    // 用于全部列表
+    row.innerHTML = `
+      <td>
+        <strong>${article.title}</strong>
+        ${tags}
+      </td>
+      <td><span class="category">${article.category}</span></td>
+      <td>${statusBadge}</td>
+      <td>${article.date}</td>
+      <td>
+        <button class="btn btn-edit" data-id="${article.id}">编辑</button>
+        <button class="btn btn-preview" data-id="${article.id}" style="background: #17a2b8; color: white;">预览</button>
+        ${publishBtn}
+        <button class="btn btn-export" data-id="${article.id}" style="background: #6c757d; color: white;">导出HTML</button>
+        <button class="btn btn-delete" data-id="${article.id}">删除</button>
+      </td>
+    `;
+  }
 
   return row;
 }
@@ -380,87 +416,115 @@ function showTab(tab) {
   document.getElementById('draft-section').style.display = tab === 'draft' ? 'block' : 'none';
 }
 
-// 新建草稿
-function createNewDraft() {
-  const title = prompt('文章标题：');
-  if (!title) return;
-
-  const category = prompt('分类（学习/面试记录/生活）：', '学习');
-  if (!category) return;
-
-  const date = new Date().toISOString().split('T')[0];
-  const id = `${date}-${Date.now()}`;
-  const filename = `${id}.html`;
-
-  const newArticle = {
-    id: id,
-    title: title,
-    category: category,
-    status: 'draft',
-    date: date,
-    file: `drafts/${filename}`
-  };
-
-  articles.push(newArticle);
-  saveArticles();
-  renderTable();
-
-  alert(`草稿已创建！\n请在 drafts/${filename} 中编写内容。`);
-}
-
 // 编辑文章
 function editArticle(id) {
-  const article = articles.find(a => a.id === id);
-  if (!article) return;
+  window.location.href = `editor.html?id=${id}`;
+}
 
-  alert(`请编辑文件：${article.file}`);
-  // 实际应用中可以打开编辑器或跳转到编辑页面
+// 预览文章
+function previewArticle(id) {
+  const article = ArticleManager.getById(id);
+  if (!article) {
+    alert('文章不存在');
+    return;
+  }
+
+  // 在新窗口中打开预览
+  const previewWindow = window.open('', '_blank');
+  const html = HTMLExporter.generateHTML(article);
+  previewWindow.document.write(html);
+  previewWindow.document.close();
+}
+
+// 导出文章HTML
+function exportArticleHTML(id) {
+  const article = ArticleManager.getById(id);
+  if (!article) {
+    alert('文章不存在');
+    return;
+  }
+
+  const filePath = HTMLExporter.export(article);
+  Toast.show('HTML文件已导出', 'success');
 }
 
 // 发布文章
 function publishArticle(id) {
-  const article = articles.find(a => a.id === id);
+  const article = ArticleManager.getById(id);
   if (!article) return;
 
   if (confirm(`确定要发布《${article.title}》吗？`)) {
-    article.status = 'public';
-
-    // 如果是从drafts移动到posts
-    if (article.file.startsWith('drafts/')) {
-      const newFile = article.file.replace('drafts/', 'posts/');
-      alert(`请将文件从 ${article.file} 移动到 ${newFile}，然后更新index.html`);
-      article.file = newFile;
-    }
-
-    saveArticles();
+    ArticleManager.publish(id);
     renderTable();
+    Toast.show('文章已发布', 'success');
   }
 }
 
 // 撤回发布
 function unpublishArticle(id) {
-  const article = articles.find(a => a.id === id);
+  const article = ArticleManager.getById(id);
   if (!article) return;
 
   if (confirm(`确定要撤回《${article.title}》吗？`)) {
-    article.status = 'draft';
-    saveArticles();
+    ArticleManager.unpublish(id);
     renderTable();
+    Toast.show('文章已撤回', 'success');
   }
 }
 
 // 删除文章
 function deleteArticle(id) {
-  const article = articles.find(a => a.id === id);
+  const article = ArticleManager.getById(id);
   if (!article) return;
 
   if (confirm(`确定要删除《${article.title}》吗？此操作不可恢复！`)) {
-    articles = articles.filter(a => a.id !== id);
-    saveArticles();
+    ArticleManager.delete(id);
     renderTable();
-    alert(`已删除，请同时删除文件：${article.file}`);
+    Toast.show('文章已删除', 'success');
   }
 }
+
+// 导出所有数据
+function exportAllData() {
+  ArticleManager.exportJSON();
+  Toast.show('数据已导出', 'success');
+}
+
+// 导入数据
+function importData() {
+  document.getElementById('import-file').click();
+}
+
+// 处理文件导入
+document.addEventListener('DOMContentLoaded', function() {
+  const importFile = document.getElementById('import-file');
+  if (importFile) {
+    importFile.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        try {
+          const jsonString = event.target.result;
+          const success = ArticleManager.importJSON(jsonString);
+          if (success) {
+            renderTable();
+            Toast.show('数据导入成功', 'success');
+          } else {
+            alert('数据格式错误，导入失败');
+          }
+        } catch (e) {
+          alert('文件读取失败：' + e.message);
+        }
+      };
+      reader.readAsText(file);
+
+      // 重置input
+      e.target.value = '';
+    });
+  }
+});
 
 // 初始化
 renderTable();
