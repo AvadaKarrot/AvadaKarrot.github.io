@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>稿件管理 - 张琬沁的博客</title>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", Arial, sans-serif;
+    line-height: 1.8;
+    color: #333;
+    background: #f5f7fa;
+    padding: 20px;
+  }
+
+  .header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 30px 20px;
+    border-radius: 12px;
+    margin-bottom: 30px;
+  }
+
+  .header h1 {
+    font-size: 2em;
+    margin-bottom: 5px;
+  }
+
+  .header p {
+    opacity: 0.9;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .tab {
+    padding: 10px 20px;
+    background: white;
+    border: 2px solid #667eea;
+    color: #667eea;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: all 0.3s;
+  }
+
+  .tab:hover,
+  .tab.active {
+    background: #667eea;
+    color: white;
+  }
+
+  .section {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    margin-bottom: 20px;
+  }
+
+  .section h2 {
+    color: #667eea;
+    margin-bottom: 20px;
+    font-size: 1.5em;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th {
+    background: #f8f9fa;
+    padding: 12px;
+    text-align: left;
+    font-weight: 600;
+    color: #555;
+    border-bottom: 2px solid #e0e0e0;
+  }
+
+  td {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+  }
+
+  .status-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.85em;
+    font-weight: 500;
+  }
+
+  .status-draft {
+    background: #fff3cd;
+    color: #856404;
+  }
+
+  .status-public {
+    background: #d4edda;
+    color: #155724;
+  }
+
+  .btn {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9em;
+    margin-right: 5px;
+    transition: all 0.3s;
+  }
+
+  .btn-edit {
+    background: #667eea;
+    color: white;
+  }
+
+  .btn-edit:hover {
+    background: #5568d3;
+  }
+
+  .btn-publish {
+    background: #28a745;
+    color: white;
+  }
+
+  .btn-publish:hover {
+    background: #218838;
+  }
+
+  .btn-unpublish {
+    background: #ffc107;
+    color: #333;
+  }
+
+  .btn-unpublish:hover {
+    background: #e0a800;
+  }
+
+  .btn-delete {
+    background: #dc3545;
+    color: white;
+  }
+
+  .btn-delete:hover {
+    background: #c82333;
+  }
+
+  .btn-new {
+    background: #667eea;
+    color: white;
+    padding: 12px 24px;
+    text-decoration: none;
+    display: inline-block;
+    border-radius: 8px;
+    margin-bottom: 20px;
+  }
+
+  .btn-new:hover {
+    background: #5568d3;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #999;
+  }
+
+  .empty-state svg {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 20px;
+    opacity: 0.5;
+  }
+
+  .category {
+    display: inline-block;
+    padding: 3px 8px;
+    background: #e8ecf7;
+    color: #667eea;
+    border-radius: 10px;
+    font-size: 0.8em;
+    margin-right: 5px;
+  }
+
+  @media (max-width: 768px) {
+    table {
+      font-size: 0.9em;
+    }
+
+    .btn {
+      padding: 4px 8px;
+      font-size: 0.8em;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>📝 稿件管理</h1>
+    <p>管理你的博客文章草稿和已发布内容</p>
+  </div>
+
+  <a href="#" class="btn-new" onclick="createNewDraft()">+ 新建草稿</a>
+
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('all')">全部</div>
+    <div class="tab" onclick="showTab('public')">已发布</div>
+    <div class="tab" onclick="showTab('draft')">草稿</div>
+  </div>
+
+  <div class="section" id="all-section">
+    <h2>全部稿件</h2>
+    <table id="all-table">
+      <thead>
+        <tr>
+          <th>标题</th>
+          <th>分类</th>
+          <th>状态</th>
+          <th>日期</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody id="all-tbody">
+        <!-- 数据由JavaScript填充 -->
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section" id="public-section" style="display:none;">
+    <h2>已发布文章</h2>
+    <table id="public-table">
+      <thead>
+        <tr>
+          <th>标题</th>
+          <th>分类</th>
+          <th>日期</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody id="public-tbody">
+        <!-- 数据由JavaScript填充 -->
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section" id="draft-section" style="display:none;">
+    <h2>草稿箱</h2>
+    <table id="draft-table">
+      <thead>
+        <tr>
+          <th>标题</th>
+          <th>分类</th>
+          <th>日期</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody id="draft-tbody">
+        <!-- 数据由JavaScript填充 -->
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+// 稿件数据存储在localStorage
+let articles = JSON.parse(localStorage.getItem('blog_articles')) || [
+  {
+    id: '2026-06-14-start-cs336',
+    title: '开始CS336：大模型系统学习启动',
+    category: '学习',
+    status: 'public',
+    date: '2026-06-14',
+    file: 'posts/2026-06-14-start-cs336.html'
+  },
+  {
+    id: '2026-06-14-new-chapter',
+    title: '新的开始：离开体制，追求成长',
+    category: '生活',
+    status: 'public',
+    date: '2026-06-14',
+    file: 'posts/2026-06-14-new-chapter.html'
+  }
+];
+
+// 保存数据
+function saveArticles() {
+  localStorage.setItem('blog_articles', JSON.stringify(articles));
+}
+
+// 渲染表格
+function renderTable() {
+  const allTbody = document.getElementById('all-tbody');
+  const publicTbody = document.getElementById('public-tbody');
+  const draftTbody = document.getElementById('draft-tbody');
+
+  allTbody.innerHTML = '';
+  publicTbody.innerHTML = '';
+  draftTbody.innerHTML = '';
+
+  articles.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  articles.forEach(article => {
+    const row = createRow(article);
+    allTbody.appendChild(row.cloneNode(true));
+
+    if (article.status === 'public') {
+      publicTbody.appendChild(row.cloneNode(true));
+    } else {
+      draftTbody.appendChild(row.cloneNode(true));
+    }
+  });
+
+  // 绑定事件
+  document.querySelectorAll('.btn-edit').forEach(btn => {
+    btn.onclick = () => editArticle(btn.dataset.id);
+  });
+  document.querySelectorAll('.btn-publish').forEach(btn => {
+    btn.onclick = () => publishArticle(btn.dataset.id);
+  });
+  document.querySelectorAll('.btn-unpublish').forEach(btn => {
+    btn.onclick = () => unpublishArticle(btn.dataset.id);
+  });
+  document.querySelectorAll('.btn-delete').forEach(btn => {
+    btn.onclick = () => deleteArticle(btn.dataset.id);
+  });
+}
+
+// 创建表格行
+function createRow(article) {
+  const row = document.createElement('tr');
+
+  const statusBadge = article.status === 'public'
+    ? '<span class="status-badge status-public">已发布</span>'
+    : '<span class="status-badge status-draft">草稿</span>';
+
+  const publishBtn = article.status === 'draft'
+    ? `<button class="btn btn-publish" data-id="${article.id}">发布</button>`
+    : `<button class="btn btn-unpublish" data-id="${article.id}">撤回</button>`;
+
+  row.innerHTML = `
+    <td><strong>${article.title}</strong></td>
+    <td><span class="category">${article.category}</span></td>
+    <td>${statusBadge}</td>
+    <td>${article.date}</td>
+    <td>
+      <button class="btn btn-edit" data-id="${article.id}">编辑</button>
+      ${publishBtn}
+      <button class="btn btn-delete" data-id="${article.id}">删除</button>
+    </td>
+  `;
+
+  return row;
+}
+
+// 切换标签
+function showTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+
+  document.getElementById('all-section').style.display = tab === 'all' ? 'block' : 'none';
+  document.getElementById('public-section').style.display = tab === 'public' ? 'block' : 'none';
+  document.getElementById('draft-section').style.display = tab === 'draft' ? 'block' : 'none';
+}
+
+// 新建草稿
+function createNewDraft() {
+  const title = prompt('文章标题：');
+  if (!title) return;
+
+  const category = prompt('分类（学习/面试记录/生活）：', '学习');
+  if (!category) return;
+
+  const date = new Date().toISOString().split('T')[0];
+  const id = `${date}-${Date.now()}`;
+  const filename = `${id}.html`;
+
+  const newArticle = {
+    id: id,
+    title: title,
+    category: category,
+    status: 'draft',
+    date: date,
+    file: `drafts/${filename}`
+  };
+
+  articles.push(newArticle);
+  saveArticles();
+  renderTable();
+
+  alert(`草稿已创建！\n请在 drafts/${filename} 中编写内容。`);
+}
+
+// 编辑文章
+function editArticle(id) {
+  const article = articles.find(a => a.id === id);
+  if (!article) return;
+
+  alert(`请编辑文件：${article.file}`);
+  // 实际应用中可以打开编辑器或跳转到编辑页面
+}
+
+// 发布文章
+function publishArticle(id) {
+  const article = articles.find(a => a.id === id);
+  if (!article) return;
+
+  if (confirm(`确定要发布《${article.title}》吗？`)) {
+    article.status = 'public';
+
+    // 如果是从drafts移动到posts
+    if (article.file.startsWith('drafts/')) {
+      const newFile = article.file.replace('drafts/', 'posts/');
+      alert(`请将文件从 ${article.file} 移动到 ${newFile}，然后更新index.html`);
+      article.file = newFile;
+    }
+
+    saveArticles();
+    renderTable();
+  }
+}
+
+// 撤回发布
+function unpublishArticle(id) {
+  const article = articles.find(a => a.id === id);
+  if (!article) return;
+
+  if (confirm(`确定要撤回《${article.title}》吗？`)) {
+    article.status = 'draft';
+    saveArticles();
+    renderTable();
+  }
+}
+
+// 删除文章
+function deleteArticle(id) {
+  const article = articles.find(a => a.id === id);
+  if (!article) return;
+
+  if (confirm(`确定要删除《${article.title}》吗？此操作不可恢复！`)) {
+    articles = articles.filter(a => a.id !== id);
+    saveArticles();
+    renderTable();
+    alert(`已删除，请同时删除文件：${article.file}`);
+  }
+}
+
+// 初始化
+renderTable();
+</script>
+
+</body>
+</html>

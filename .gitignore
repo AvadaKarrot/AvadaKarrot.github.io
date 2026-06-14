@@ -1,0 +1,4 @@
+# 使用.gitignore让drafts文件夹保持私密
+drafts/*.html
+drafts/*.md
+!drafts/README.md
